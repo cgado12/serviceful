@@ -1,4 +1,5 @@
 import { Title, Text, Anchor, MediaQuery, rem } from '@mantine/core';
+import useStyles from './Welcome.styles';
 
 import styles from './Welcome.module.scss';
 
