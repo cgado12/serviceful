@@ -1,17 +1,24 @@
-import { Title, Text, Anchor } from '@mantine/core';
-import useStyles from './Welcome.styles';
+import { Title, Text, Anchor, MediaQuery, rem } from '@mantine/core';
+
+import styles from './Welcome.module.scss';
 
 export function Welcome() {
   const { classes } = useStyles();
 
   return (
     <>
-      <Title className={classes.title} align="center" mt={100}>
-        Welcome to{' '}
-        <Text inherit variant="gradient" component="span">
-          Mantine
-        </Text>
-      </Title>
+      <MediaQuery
+        query="(max-width: 75em) and (min-width: 50em)"
+        styles={{ fontSize: rem(20), '&:hover': { backgroundColor: 'silver' } }}
+        className={styles.test}
+      >
+        <Title className={classes.title} align="center" mt={100}>
+          Welcome to{' '}
+          <Text inherit variant="gradient" component="span">
+            Mantine
+          </Text>
+        </Title>
+      </MediaQuery>
       <Text color="dimmed" align="center" size="lg" sx={{ maxWidth: 580 }} mx="auto" mt="xl">
         This starter Next.js project includes a minimal setup for server side rendering, if you want
         to learn more on Mantine + Next.js integration follow{' '}
