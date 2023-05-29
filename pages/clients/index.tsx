@@ -15,17 +15,21 @@ const Clients = () => {
       setClients(customers);
   
   }, [customers]);
+
+    const createClient = () => {
+      router.push('clients/create');
+    };
   
   console.log('customers in clients page:', clients);
   return (
     <div>
       <Title>Clients table</Title>
+      <Button onClick={createClient}>New Client</Button>
       {customers && (
         <Table>
           <thead>
             <tr>
-              <th>First Name</th>
-              <th>Last Name</th>
+              <th>Name</th>
               <th>Address</th>
               <th>phone</th>
               <th>Actions</th>
@@ -34,8 +38,8 @@ const Clients = () => {
           <tbody>
             {Object.values(clients)?.map((client: any, idx: number) => (
               <tr key={`${client?.address}-${idx}`}>
-                <td>{client.firstName}</td>
-                <td>{client.lastName}</td>
+                <td>{`${client.firstName} ${client.lastName}`}</td>
+
                 <td>{client.address}</td>
                 <td>{client.phone}</td>
                 <td>
