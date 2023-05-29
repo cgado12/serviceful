@@ -1,9 +1,13 @@
 import { Title, Button } from "@mantine/core";
 import { useRouter } from "next/router";
+import { useContext } from "react";
+import { UserContext } from "../../components/Context/UserContext";
 
 
 const Dashboard = () => {
   const router = useRouter()
+  const user = useContext(UserContext)
+  console.log(user)
 
   const createClient = () => {
    router.push('clients/create')
