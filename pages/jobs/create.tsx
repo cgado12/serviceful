@@ -7,6 +7,7 @@ import { UserContext } from '../../components/Context/UserContext';
 import usePocketbase from '../../hooks/usePocketbase';
 import { DateTimePicker } from '@mantine/dates';
 import { start } from 'repl';
+import { CustomerContext } from '../../components/Context/CustomerContext';
 
 interface CreateJobFormProps {
   onSubmit: (data: any) => void;
@@ -16,6 +17,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
   const pb = usePocketbase();
   const router = useRouter();
   const { user } = useContext(UserContext) as { user: any };
+  const customers = useContext(CustomerContext) as { user: any };
   const [services, setServices] = useState<string | null>(null);
   const [startDate, setStartDate] = useState(null)
   console.log("user:", user)
@@ -91,13 +93,12 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           label="Select the customer for this job"
           placeholder="Pick one"
           value={services}
+          searchable
           onChange={setServices}
-          data={[
-            { value: 'react', label: 'React' },
-            { value: 'ng', label: 'Angular' },
-            { value: 'svelte', label: 'Svelte' },
-            { value: 'vue', label: 'Vue' },
-          ]}
+          data={Object.values(customers).map((c) => ({
+            value: `${c.firstName} ${c.lastName} - ${c.address}`,
+            label: `${c.firstName} ${c.lastName} - ${c.address}`,
+          }))}
         />
         <TextInput
           label="Job Notes"

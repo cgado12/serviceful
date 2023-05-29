@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, useState } from 'react';
+import { ChangeEvent, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { TextInput, PasswordInput, Button } from '@mantine/core';
 
@@ -19,6 +19,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     router.push('dashboard');
   }
 
+    useEffect(() => {
+      const keyDownHandler = (event: any) => {
+        console.log(event)
+        if (event.key === 'Enter') {
+          // event.preventDefault();
+
+          // 👇️ call submit function here
+          console.log(event.key)
+          handleSubmit();
+        }
+      };
+
+      document.addEventListener('keydown', keyDownHandler);
+
+      return () => {
+        document.removeEventListener('keydown', keyDownHandler);
+      };
+    }, []);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const updatedInfo = { ...loginInfo, [e.currentTarget.type]: e.currentTarget.value }
     setLoginInfo(updatedInfo)
@@ -26,6 +45,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = () => {
     if (Object.entries(loginInfo).every(([key, value]) => key && value)) {
+      console.log("shouldLogin")
       login(loginInfo)
     }
   };

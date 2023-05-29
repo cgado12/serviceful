@@ -14,6 +14,7 @@ const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
   const pb = usePocketbase()
   const router = useRouter();
   const { user } = useContext(UserContext) as { user: any};
+  console.log(" here",user)
   
   const initialFormData = {
     firstName: '',
@@ -22,7 +23,7 @@ const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
     phone: '',
     email: '',
     role: ['customer'],
-    orgId: user.record.orgId[0],
+    orgId: user?.record?.orgId[0],
   };
 
 

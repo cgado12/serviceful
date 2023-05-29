@@ -23,6 +23,7 @@ import { useRouter } from 'next/router';
 import styles from './_app.module.scss';
 import { UserProvider } from '../components/Context/UserContext';
 import usePocketbase from '../hooks/usePocketbase';
+import { CustomerProvider } from '../components/Context/CustomerContext';
 
 export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   const router = useRouter();
@@ -34,12 +35,14 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   const [colorScheme, setColorScheme] = useState<ColorScheme>(props.colorScheme);
 
   useEffect(() => {
-    
-    if (pb.authStore.isValid) {
-      console.log(pb.authStore)
-      setIsAthenticated(true)
-      setUser(pb.authStore.model as {})
+    const revalidateUser = async () => {
+      if (pb.authStore.isValid && await pb.collection('users').authRefresh()) {
+        console.log(pb.authStore)
+        setIsAthenticated(true)
+        setUser(pb.authStore.model as {})
+      }
     }
+    revalidateUser()
   }, [])
 
   const login = async (loginInfo: { [key: string]: string }) => {
@@ -135,58 +138,60 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
           withNormalizeCSS
         >
           <AuthContext.Provider value={{ isAuthenticated, login, logout, signUp }}>
-            {isAuthenticated ? (
+            {isAuthenticated && user ? (
               <UserProvider value={{ user }}>
-                <AppShell
-                  navbarOffsetBreakpoint="sm"
-                  asideOffsetBreakpoint="sm"
-                  navbar={
-                    <Navbar
-                      p="md"
-                      hiddenBreakpoint="sm"
-                      hidden={!opened}
-                      width={{ sm: 200, lg: 300 }}
-                    >
-                      <div className={styles.navSplit}>
-                        <div>
-                          <Link href="/dashboard">
-                            <Text>Dashboard</Text>
-                          </Link>
-                          <Link href="/clients">
-                            <Text>Clients</Text>
-                          </Link>
-                          <Link href="/jobs">
-                            <Text>Jobs</Text>
-                          </Link>
-                          <Link href="/payments">
-                            <Text>Payments</Text>
-                          </Link>
+                <CustomerProvider>
+                  <AppShell
+                    navbarOffsetBreakpoint="sm"
+                    asideOffsetBreakpoint="sm"
+                    navbar={
+                      <Navbar
+                        p="md"
+                        hiddenBreakpoint="sm"
+                        hidden={!opened}
+                        width={{ sm: 200, lg: 300 }}
+                      >
+                        <div className={styles.navSplit}>
+                          <div>
+                            <Link href="/dashboard">
+                              <Text>Dashboard</Text>
+                            </Link>
+                            <Link href="/clients">
+                              <Text>Clients</Text>
+                            </Link>
+                            <Link href="/jobs">
+                              <Text>Jobs</Text>
+                            </Link>
+                            <Link href="/payments">
+                              <Text>Payments</Text>
+                            </Link>
+                          </div>
+                          <div>
+                            <Button onClick={logout}>Logout</Button>
+                            <ColorSchemeToggle />
+                          </div>
                         </div>
-                        <div>
-                          <Button onClick={logout}>Logout</Button>
-                          <ColorSchemeToggle />
+                      </Navbar>
+                    }
+                    header={
+                      <Header height={{ base: 50, md: 70 }} p="md">
+                        <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+                          <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                            <Burger
+                              opened={opened}
+                              onClick={() => setOpened((o) => !o)}
+                              size="sm"
+                              mr="xl"
+                            />
+                          </MediaQuery>
+                          <Text>Application header</Text>
                         </div>
-                      </div>
-                    </Navbar>
-                  }
-                  header={
-                    <Header height={{ base: 50, md: 70 }} p="md">
-                      <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                        <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                          <Burger
-                            opened={opened}
-                            onClick={() => setOpened((o) => !o)}
-                            size="sm"
-                            mr="xl"
-                          />
-                        </MediaQuery>
-                        <Text>Application header</Text>
-                      </div>
-                    </Header>
-                  }
-                >
-                  {MainApp}
-                </AppShell>
+                      </Header>
+                    }
+                  >
+                    {MainApp}
+                  </AppShell>
+                </CustomerProvider>
               </UserProvider>
             ) : (
               MainApp
