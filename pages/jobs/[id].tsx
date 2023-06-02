@@ -1,4 +1,4 @@
-import { Button, Card, Select } from '@mantine/core';
+import { Button, Card, Select, Text } from '@mantine/core';
 import { useRouter } from 'next/router';
 import usePocketbase from '../../hooks/usePocketbase';
 import { useContext, useEffect, useState } from 'react';
@@ -19,17 +19,18 @@ const ViewJob = () => {
   const [collectPayment, setCollectPaymnt] = useState(false);
   const [shouldAddSubscription, setShouldAddSubscription] = useState(false);
   const [subscription, setSubscription] = useState<string | null>(null);
-  // const [isComplete, setIsComplete] = useState(job?.status);
+
+  const [paymentLink, setPaymentLink] = useState('')
 
   const { id } = router.query;
 
   useEffect(() => {
     const getJob = async () => {
       if (id) {
-        let j = Object.values(jobs).find((j:any) => j.id === id)
+        let j = Object.values(jobs).find((j: any) => j.id === id);
         if (!j) {
           const response = await pb.collection('job').getOne(id as string);
-          j = response
+          j = response;
         }
         setJob(j);
       }
@@ -43,10 +44,31 @@ const ViewJob = () => {
     setCollectPaymnt(!collectPayment);
   };
 
-  const addSubscription = async () => {
-    const catalog = Object.values(catalogItems).find((ci: any) => ci.title === subscription) as any
-    const customer = Object.values(customers).find((c: any) => c.id === job.customerId) as any
+  const sendPaymentLink = async () => {
+    const response = await fetch('/api/sendPaymentLink', {
+      method: 'POST',
+      body: JSON.stringify(job),
+    });
+    const body = await response.json();
+    const obj = JSON.parse(body.body);
+
+    setPaymentLink(obj?.payment_link?.url)
     
+    let phoneNumber = Object.values(customers).find((c: any) => c.id === job.customerId)
+    // @ts-ignore
+    phoneNumber = phoneNumber?.phone
+    const resp = await fetch('/api/sendPaymentText', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...job, ...obj, phoneNumber
+      }),
+    });
+  };
+
+  const addSubscription = async () => {
+    const catalog = Object.values(catalogItems).find((ci: any) => ci.title === subscription) as any;
+    const customer = Object.values(customers).find((c: any) => c.id === job.customerId) as any;
+
     const data = {
       subscriptionId: catalog?.catalogId,
       customerId: {
@@ -58,7 +80,7 @@ const ViewJob = () => {
       method: 'POST',
       body: JSON.stringify(data),
     });
-    
+
     if (response.statusText === 'OK') {
       const body = await response.json();
       const subscriptionObj = JSON.parse(body.body);
@@ -71,13 +93,17 @@ const ViewJob = () => {
   return (
     <div>
       <Button onClick={() => router.back()}>BackPlease!</Button>Client Name
-      <Button onClick={() => pb.collection('job').update(job.id, { ...job, jobStatus: 'complete' })}>
+      <Button
+        onClick={() => pb.collection('job').update(job.id, { ...job, jobStatus: 'complete' })}
+      >
         Mark as Complete
       </Button>
       <Button onClick={() => router.push(router.asPath + '/edit')}>Edit</Button>
       <Button>delete</Button>
       <div>The job & user info...</div>
       <div>
+        <Button onClick={sendPaymentLink}>Send Payment Link</Button>
+
         <Button onClick={() => setShouldAddSubscription(!shouldAddSubscription)}>
           Add to Subscription
         </Button>
@@ -111,6 +137,9 @@ const ViewJob = () => {
                     body: JSON.stringify(body),
                     method: 'POST',
                   });
+                  if (data.statusText === 'OK') {
+                    await pb.collection(job).update(job.id, { ...job, isPaid: true });
+                  }
                 }
               }}
             >
@@ -118,6 +147,7 @@ const ViewJob = () => {
             </PaymentForm>
           </Card>
         )}
+        {paymentLink && <a href={paymentLink} target="_blank" ><Text>Click Here to pay!</Text></a>}
       </div>
     </div>
   );

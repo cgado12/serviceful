@@ -11,5 +11,6 @@ module.exports = withBundleAnalyzer({
   },
   sassOptions: {
     additionalData: `@import "styles/breakpoints.scss";`,
-  }
+  },
+  output: 'standalone'
 });

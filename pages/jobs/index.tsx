@@ -9,6 +9,7 @@ import moment from 'moment';
 const Jobs = () => {
   const router = useRouter();
   const { jobs: jobList } = useContext(JobContext) as any;
+  const { customers } = useContext(CustomerContext) as any;
   const [jobs, setJobs] = useState<any>([]);
 
   useEffect(() => {
@@ -29,7 +30,7 @@ const Jobs = () => {
           <thead>
             <tr>
               <th>Title</th>
-              <th>Address</th>
+              <th>Description</th>
               <th>Phone</th>
               <th>Appointment</th>
               <th>Payment</th>
@@ -41,9 +42,10 @@ const Jobs = () => {
               <tr key={`${job?.address}-${idx}`}>
                 <td>{job.title}</td>
                 <td>{job.address}</td>
-                <td>{job.phone}</td>
+                {/** @ts-ignore */}
+                <td>{Object.values(customers).find((c:any)=>c.id === job.customerId)?.phone || ''}</td>
                 <td>{`${job?.start ? moment(job.start).format('MM/DD/YYYY') : ''}`}</td>
-                <td> {job.payment}</td>
+                <td> {job.amountDue}</td>
                 <td>
                   <Button onClick={() => router.push(`${router.asPath}/${job.id}`)}>
                     View

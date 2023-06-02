@@ -33,6 +33,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
     address: '',
     start: '',
     end: '',
+    amountDue: '',
     jobStatus: 'pending',
     isJobRecurring: false,
     isPaymentRecurring: false,
@@ -156,6 +157,15 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           value={formData?.address || ''}
           onChange={handleChange}
         />
+        <TextInput
+          label="Price"
+          placeholder="Enter the amount due for job completion"
+          id="amountDue"
+          required
+          radius="md"
+          value={formData?.amountDue || ''}
+          onChange={handleChange}
+        />
         <DateTimePicker
           valueFormat="DD MMM YYYY hh:mm A"
           label="Pick start date and time"
@@ -171,9 +181,8 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           checked={spansDays}
           onChange={() => {
             setIsJobRecurring(!spansDays);
-            setSpansDays(!spansDays)
-          }
-          }
+            setSpansDays(!spansDays);
+          }}
         />
         {spansDays && (
           <DateTimePicker
@@ -192,9 +201,8 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           color="teal"
           checked={isPaymentRecurring}
           onChange={() => {
-            setIsPaymentRecurring(!isPaymentRecurring)
-          }
-          }
+            setIsPaymentRecurring(!isPaymentRecurring);
+          }}
         />
         {isPaymentRecurring && (
           <Select
@@ -210,11 +218,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           />
         )}
 
-        <Button
-          onClick={handleSubmit}
-        >
-          Create
-        </Button>
+        <Button onClick={handleSubmit}>Create</Button>
       </form>
     </div>
   );
