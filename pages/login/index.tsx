@@ -27,7 +27,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
           // 👇️ call submit function here
           console.log(event.key)
-          handleSubmit();
+          // handleSubmit(); <-- TODO: this doesnt work consistently?
+          document.getElementById('loginBtn')?.click();
         }
       };
 
@@ -43,10 +44,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     setLoginInfo(updatedInfo)
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (Object.entries(loginInfo).every(([key, value]) => key && value)) {
       console.log("shouldLogin")
-      login(loginInfo)
+      await login(loginInfo)
     }
   };
 
@@ -72,7 +73,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
 
-        <Button onClick={handleSubmit}>Log In</Button>
+        <Button id="loginBtn" onClick={handleSubmit}>Log In</Button>
       </form>
     </div>
   );

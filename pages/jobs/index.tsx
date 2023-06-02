@@ -8,7 +8,7 @@ import moment from 'moment';
 
 const Jobs = () => {
   const router = useRouter();
-  const jobList = useContext(JobContext);
+  const { jobs: jobList } = useContext(JobContext) as any;
   const [jobs, setJobs] = useState<any>([]);
 
   useEffect(() => {
@@ -45,10 +45,10 @@ const Jobs = () => {
                 <td>{`${job?.start ? moment(job.start).format('MM/DD/YYYY') : ''}`}</td>
                 <td> {job.payment}</td>
                 <td>
-                  <Button onClick={() => router.push(`${router.asPath}/${job.id}/edit`)}>
-                    Update
+                  <Button onClick={() => router.push(`${router.asPath}/${job.id}`)}>
+                    View
                   </Button>
-                  <Button>Delete</Button>
+                  
                 </td>
               </tr>
             ))}

@@ -11,21 +11,20 @@ interface CreateClientFormProps {
 }
 
 const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
-  const pb = usePocketbase()
+  const pb = usePocketbase();
   const router = useRouter();
-  const { user } = useContext(UserContext) as { user: any};
-  console.log(" here",user)
-  
+  const { user } = useContext(UserContext) as { user: any };
+
   const initialFormData = {
     firstName: '',
     lastName: '',
     address: '',
     phone: '',
     email: '',
+    squareCustomerId: 'set in Submit',
     role: ['customer'],
     orgId: user?.record?.orgId[0],
   };
-
 
   const [formData, setFormData] = useState(initialFormData);
 
@@ -37,11 +36,19 @@ const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
   const handleSubmit = async () => {
     if (Object.entries(formData).every(([key, value]) => key && value)) {
       try {
-        const response = await pb.collection('customers').create(formData)
-        console.log(response)
-        router.push(`/clients/${response.id}`)
+        let squareResp = await fetch('/api/createClient', {
+          method: 'POST',
+          body: JSON.stringify(formData),
+        });
+        if (squareResp.statusText === "OK") {
+          const body = await squareResp.json()
+          formData.squareCustomerId = JSON.parse(body.body).customer.id;
+          
+          const response = await pb.collection('customers').create(formData);
+          router.push(`/clients/${response?.id}`);
+        }
       } catch (err) {
-        console.error(err)
+        console.error(err);
       }
     }
   };
@@ -102,9 +109,7 @@ const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
         />
 
         <Button
-          disabled={
-            !Object.entries(formData).every(([key, value]) => key && value)
-          }
+          disabled={!Object.entries(formData).every(([key, value]) => key && value)}
           onClick={handleSubmit}
         >
           Create

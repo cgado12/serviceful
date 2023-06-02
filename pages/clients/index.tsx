@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 
 const Clients = () => {
   const router = useRouter()
-  const customers = useContext(CustomerContext);
+  const { customers } = useContext(CustomerContext) as any;
   // const pb = usePocketbase();
   const [clients, setClients] = useState<any>([])
 
@@ -43,10 +43,9 @@ const Clients = () => {
                 <td>{client.address}</td>
                 <td>{client.phone}</td>
                 <td>
-                  <Button onClick={() => router.push(`${router.asPath}/${client.id}/edit`)}>
-                    Update
+                  <Button onClick={() => router.push(`${router.asPath}/${client.id}`)}>
+                    View
                   </Button>
-                  <Button>Delete</Button>
                 </td>
               </tr>
             ))}

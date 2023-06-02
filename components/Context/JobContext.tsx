@@ -19,15 +19,16 @@ export const JobProvider = ({ children }: any) => {
   const pb = usePocketbase();
   const [jobs, setJobs] = useState({});
   const { user } = useContext(UserContext) as { user: { record: { id: string } } };
+  
+  let data;
+  const getJobData = async () => {
+    data = await pb.collection('job').getList();
+    setJobs(data?.items);
+  };
 
   useEffect(() => {
-    let data;
-    const jobData = async () => {
-      data = await pb.collection('job').getList();
-      setJobs(data?.items);
-    };
-    jobData();
+    getJobData();
   }, [user?.record?.id]);
 
-  return <JobContext.Provider value={{ ...jobs }}>{children}</JobContext.Provider>;
+  return <JobContext.Provider value={{ jobs: {...jobs }, getJobData }}>{children}</JobContext.Provider>;
 };

@@ -6,8 +6,8 @@ import styles from './create.module.scss';
 import { UserContext } from '../../components/Context/UserContext';
 import usePocketbase from '../../hooks/usePocketbase';
 import { DateTimePicker } from '@mantine/dates';
-import { start } from 'repl';
 import { CustomerContext } from '../../components/Context/CustomerContext';
+import { CatalogContext } from '../../components/Context/catalogContext';
 
 interface CreateJobFormProps {
   onSubmit: (data: any) => void;
@@ -17,44 +17,75 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
   const pb = usePocketbase();
   const router = useRouter();
   const { user } = useContext(UserContext) as { user: any };
-  const customers = useContext(CustomerContext) as { user: any };
-  const [services, setServices] = useState<string | null>(null);
-  const [startDate, setStartDate] = useState(null)
-  console.log("user:", user)
-  
+  const { customers } = useContext(CustomerContext) as { customers: { user: any } };
+  const {catalogs: catalogItems} = useContext(CatalogContext) as any;
+  const [subscription, setSubscription] = useState < string| null>(null);
+  const [client, setClient] = useState<string | null>(null);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [spansDays, setSpansDays] = useState(false);
+  const [isJobRecurring, setIsJobRecurring] = useState(false);
+  const [isPaymentRecurring, setIsPaymentRecurring] = useState(false);
+
   const initialFormData = {
     title: '',
-    services: '',
     notes: '',
     address: '',
     start: '',
     end: '',
+    jobStatus: 'pending',
     isJobRecurring: false,
     isPaymentRecurring: false,
+    subscriptionId: '',
     createdBy: [user?.record?.id], // add this
-    customerId:'s82lfkp96cco6j8', 
+    customerId: '',
     orgId: [user?.record?.orgId[0]],
   };
 
   const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
-    if (services) {
-      setFormData({ ...formData, services: services });
+    if (client) {
+      const cId = Object.values(customers).find((c) => client.includes(c.address));
+      setFormData({ ...formData, customerId: cId});
     }
-  }, [services])
-  
+  }, [client]);
+
+  useEffect(() => {
+    if (subscription) {
+      const sId = Object.values(catalogItems).find((c: any) => subscription.includes(c.title) && c.id);
+      setFormData({ ...formData, subscriptionId: (sId as any).catalogId });
+    }
+  }, [subscription]);
+
+  useEffect(() => {
+    if (startDate) {
+      const date = (startDate as Date).toString();
+      setFormData({ ...formData, start: date, end: !isJobRecurring ? date: '' });
+    }
+  }, [startDate]);
+
     useEffect(() => {
-      if (startDate) {
-        const date = (startDate as Date).toString()
-        setFormData({ ...formData, start: date, end: date });
+      if (endDate) {
+        const date = (endDate as Date).toString();
+        setFormData({ ...formData, end: date });
       }
-    }, [startDate]);
+    }, [endDate]);
   
-  const handleDateChange = (e: any) => {
-    console.log(e)
-    setStartDate(e)
-  }
+  useEffect(() => {
+    setFormData({ ...formData, isJobRecurring });
+  }, [isJobRecurring])
+
+    useEffect(() => {
+      setFormData({ ...formData, isPaymentRecurring });
+    }, [isPaymentRecurring]);
+
+  const handleStartDateChange = (e: any) => {
+    setStartDate(e);
+  };
+  const handleEndDateChange = (e: any) => {
+    setEndDate(e);
+  };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const updatedInfo = { ...formData, [e.currentTarget.id]: e.currentTarget.value };
@@ -62,16 +93,23 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
   };
 
   const handleSubmit = async () => {
-      try {
-        const response = await pb.collection('job').create(JSON.stringify(formData));
-        console.log(response);
-        router.push(`/jobs/${response.id}`);
-      } catch (err) {
-        console.error(err);
+    try {
+      if (isPaymentRecurring) {
+        await fetch('/api/createSubscription', {
+          method: 'POST',
+          body: JSON.stringify(formData),
+        });
       }
+      const data = {...formData, customerId: (formData.customerId as any)?.id, start: new Date(formData.start), end: new Date(formData.end)}
+      
+      
+      const response = await pb.collection('job').create(JSON.stringify(data));
+      
+      router.push(`/jobs/${response.id}`);
+    } catch (err) {
+      console.error(err);
+    }
   };
-
-  console.log(formData)
 
   return (
     <div className={styles.CreateJobContainer}>
@@ -92,9 +130,9 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
         <Select
           label="Select the customer for this job"
           placeholder="Pick one"
-          value={services}
+          value={client}
           searchable
-          onChange={setServices}
+          onChange={setClient}
           data={Object.values(customers).map((c) => ({
             value: `${c.firstName} ${c.lastName} - ${c.address}`,
             label: `${c.firstName} ${c.lastName} - ${c.address}`,
@@ -120,45 +158,59 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
         />
         <DateTimePicker
           valueFormat="DD MMM YYYY hh:mm A"
-          label="Pick start date and or time"
+          label="Pick start date and time"
           placeholder="Pick date and time"
           maw={400}
           mx="auto"
           value={startDate}
-          onChange={handleDateChange}
+          onChange={handleStartDateChange}
         />
-        <Checkbox label="This job spans multiple days" color="teal" />
-        {/* 
-         <DateTimePicker
-          valueFormat="DD MMM YYYY hh:mm A"
-          label="Pick End date and and or time for job"
-          placeholder="Pick date and time"
-          maw={400}
-          mx="auto"
-        /> */}
-        {/* <TextInput
-          label="Start Date and Time"
-          placeholder="Enter the date and time esxpected to start the job"
-          id="start"
-          radius="md"
-          value={formData?.start || ''}
-          onChange={handleChange}
-        />
-        <TextInput
-          label="End Date and Time"
-          placeholder="Enter the date and time expected for the jobs completion"
-          id="end"
-          required
-          radius="md"
-          value={formData?.end || ''}
-          onChange={handleChange}
-        /> */}
-        <Button
-          disabled={
-            !Object.entries(formData).every(
-              ([key, value]) => (key && value) || typeof value === 'boolean'
-            )
+        <Checkbox
+          label="Does this job spans multiple days"
+          color="teal"
+          checked={spansDays}
+          onChange={() => {
+            setIsJobRecurring(!spansDays);
+            setSpansDays(!spansDays)
           }
+          }
+        />
+        {spansDays && (
+          <DateTimePicker
+            valueFormat="DD MMM YYYY hh:mm A"
+            label="Pick end date and time"
+            placeholder="Pick date and time"
+            maw={400}
+            mx="auto"
+            value={endDate}
+            onChange={handleEndDateChange}
+          />
+        )}
+
+        <Checkbox
+          label="Does this job have a recurring payment? Would you like to make this a subscription?"
+          color="teal"
+          checked={isPaymentRecurring}
+          onChange={() => {
+            setIsPaymentRecurring(!isPaymentRecurring)
+          }
+          }
+        />
+        {isPaymentRecurring && (
+          <Select
+            label="Please assign a subscription"
+            placeholder="Pick a subscription"
+            value={subscription}
+            searchable
+            onChange={setSubscription}
+            data={Object.values(catalogItems).map((c: any) => ({
+              value: c.title,
+              label: c.title,
+            }))}
+          />
+        )}
+
+        <Button
           onClick={handleSubmit}
         >
           Create

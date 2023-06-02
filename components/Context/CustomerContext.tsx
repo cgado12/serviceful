@@ -17,22 +17,18 @@ export type Customers = Array<{
 // Create the User Provider component
 export const CustomerProvider = ({ children }: any) => {
   const pb = usePocketbase();
-  const [Customers, setCustomers] = useState({});
+  const [customers, setCustomers] = useState({});
   const { user } = useContext(UserContext) as { user: { record: { id: string } } } ;
-  console.log('userrrr', user);
+  let data;
 
+  const getCustomerData = async () => {
+    data = await pb.collection('customers').getList()
+    setCustomers(data?.items);
+  };
   useEffect(() => {
-    let data;
-    const customerData = async () => {
-      data = await pb.collection('customers').getList()
-      console.log("provider!!",data.items)
-      setCustomers(data?.items);
-    };
-    customerData();
+    getCustomerData();
 
-    
-    console.log('customer:', data);
   }, [user?.record?.id]);
 
-  return <CustomerContext.Provider value={{ ...Customers }}>{children}</CustomerContext.Provider>;
+  return <CustomerContext.Provider value={{ customers: { ...customers }, getCustomerData }}>{children}</CustomerContext.Provider>;
 };

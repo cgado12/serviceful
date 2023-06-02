@@ -26,9 +26,14 @@ const ViewClient = () => {
   
   return (
     <div>
-    <Button onClick={() => router.back()}>BackPlease!</Button>Client Name
-    <Button onClick={() => router.push(router.asPath+'/edit')}>forward!</Button>
-  </div>
-)};
+      <Button onClick={() => router.back()}>BackPlease!</Button>Client Name
+      <Button onClick={() => router.push(router.asPath + '/edit')}>Edit</Button>
+      <Button>delete</Button>
+
+      <div>
+        show info and jobs table with connection to view job 
+      </div>
+    </div>
+  );};
 
 export default ViewClient;
