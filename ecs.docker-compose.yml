@@ -1,0 +1,11 @@
+version: '3'
+services:
+  web:
+    image: 994072384458.dkr.ecr.us-east-1.amazonaws.com/test:latest
+    ports:
+      - "3000:3000"
+
+  backend:
+    image: 994072384458.dkr.ecr.us-east-1.amazonaws.com/test@sha256:f41acec6523cafa2a4586cd423cf7522723d990217ffca78a8c6013745f120a3
+    ports:
+      - "8090:8090"

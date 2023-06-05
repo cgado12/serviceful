@@ -1,20 +1,11 @@
-version: '3.8'
+version: '3'
 services:
   web:
     build: .
     ports:
       - "3000:3000"
-    expose:
-      - 3000
-    networks: 
-      - public
 
   backend:
     build: "backend"
     ports:
       - "8090:8090"
-    networks: 
-      - public
-
-networks:
-  public:
