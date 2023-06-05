@@ -4,6 +4,8 @@ import { TextInput, PasswordInput, Button } from '@mantine/core';
 
 import { AuthContext } from '../../components/Context/AuthContext';
 import styles from './index.module.scss';
+import img from '../../components/assets/serviceful.png';
+import Image from 'next/image';
 
 interface LoginFormProps {
   onSubmit: (email: string, password: string) => void;
@@ -51,10 +53,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     }
   };
 
+  const goToLogin = () => {
+    router.push('signup');
+  };
+
   return (
-    <div className={styles.loginFormContainer}>
+    <div className={styles.loginPageContainer}>
+      <div>
+        <Image alt="" src={img.src} width={250} height={150} />
+      </div>
       <form>
         <TextInput
+          className={styles.inputBox}
           label="Email"
           placeholder="Enter your email or username"
           type="email"
@@ -65,6 +75,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
         />
 
         <PasswordInput
+          className={styles.inputBox}
           label="Password"
           placeholder="Enter your password"
           required
@@ -73,7 +84,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
 
-        <Button id="loginBtn" onClick={handleSubmit}>Log In</Button>
+        <div className={styles.buttonContainer}>
+          <Button variant='outline' onClick={goToLogin}>Sign Up</Button>
+          <Button id="loginBtn" onClick={handleSubmit}>
+            Log In
+          </Button>
+        </div>
       </form>
     </div>
   );

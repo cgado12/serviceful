@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { Button, Table, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import { CatalogContext } from '../../components/Context/catalogContext';
+import styles from './index.module.scss';
 
 const Subscriptions = () => {
   const router = useRouter();
@@ -17,10 +18,14 @@ const Subscriptions = () => {
   };
 
   return (
-    <div>
-      <Title>Subscription packages</Title>
-      <Title size="md">Create and update your subscription packages</Title>
-      <Button onClick={createSubscription}>New Subscription Package</Button>
+    <div className={styles.pageContainer}>
+      <div className={styles.headerContainer}>
+        <div>
+          <Title>Subscription packages</Title>
+          <Title size="md">Create and update your subscription packages</Title>
+        </div>
+        <Button onClick={createSubscription}>New Subscription Package</Button>
+      </div>
 
       {subscriptions && (
         <Table>
@@ -39,9 +44,7 @@ const Subscriptions = () => {
                 <td>{plan.description}</td>
                 <td>Comming soon...</td>
                 <td>
-                  <Button onClick={() => router.push(`${router.asPath}/${plan.id}`)}>
-                    View
-                  </Button>
+                  <Button onClick={() => router.push(`${router.asPath}/${plan.id}`)}>View</Button>
                 </td>
               </tr>
             ))}

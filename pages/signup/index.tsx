@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import { TextInput, PasswordInput, Button } from '@mantine/core';
 
 import { AuthContext } from '../../components/Context/AuthContext';
+import img from '../../components/assets/serviceful.png';
+import Image from 'next/image';
 import styles from './index.module.scss';
 
 interface SignUpFormProps {
@@ -45,9 +47,13 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.SignUpFormContainer}>
+    <div className={styles.logInFormContainer}>
+      <div className={styles.logoContainer}>
+        <Image alt="" src={img.src} width={250} height={150} />
+      </div>
       <form>
         <TextInput
+          className={styles.inputBox}
           label="First Name"
           placeholder="Rusty"
           id="firstName"
@@ -57,6 +63,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
         <TextInput
+          className={styles.inputBox}
           label="Last Name"
           placeholder="Venture"
           id="lastName"
@@ -66,6 +73,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
         <TextInput
+          className={styles.inputBox}
           label="Organization Name"
           placeholder="Venture Industries"
           id="orgName"
@@ -76,6 +84,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         />
 
         <TextInput
+          className={styles.inputBox}
           label="Address"
           placeholder="Enter your Address"
           id="orgAddress"
@@ -85,6 +94,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
         <TextInput
+          className={styles.inputBox}
           label="Phone"
           placeholder="Enter your phone number"
           id="orgPhone"
@@ -94,6 +104,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         />
 
         <TextInput
+          className={styles.inputBox}
           label="Email"
           placeholder="Enter your email or username"
           type="email"
@@ -105,6 +116,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
         />
 
         <PasswordInput
+          className={styles.inputBox}
           label="Password"
           placeholder="Enter your password"
           id="password"
@@ -114,6 +126,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
         <PasswordInput
+          className={styles.inputBox}
           label="Password Confirmation"
           placeholder="Enter your password"
           id="passwordConfirm"
@@ -123,7 +136,21 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit }) => {
           onChange={handleChange}
         />
 
-        <Button disabled={ Object.entries(formData).every(([key, value]) => key && value) && formData.password !== formData.passwordConfirm} onClick={handleSubmit}>Log In</Button>
+        <div className={styles.buttonContainer}>
+          <Button onClick={() => router.push('/login')} variant="outline">
+            {' '}
+            Login
+          </Button>
+          <Button
+            disabled={
+              Object.entries(formData).every(([key, value]) => key && value) &&
+              formData.password !== formData.passwordConfirm
+            }
+            onClick={handleSubmit}
+          >
+            Sign up
+          </Button>
+        </div>
       </form>
     </div>
   );

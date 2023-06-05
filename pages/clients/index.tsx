@@ -4,10 +4,11 @@ import usePocketbase from '../../hooks/usePocketbase';
 import { Button, Table, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 
+import styles from './index.module.scss'
+
 const Clients = () => {
   const router = useRouter()
   const { customers } = useContext(CustomerContext) as any;
-  // const pb = usePocketbase();
   const [clients, setClients] = useState<any>([])
 
   useEffect(() => {
@@ -22,9 +23,11 @@ const Clients = () => {
   
   console.log('customers in clients page:', clients);
   return (
-    <div>
-      <Title>Clients table</Title>
-      <Button onClick={createClient}>New Client</Button>
+    <div className={styles.pageContainer}>
+      <div className={styles.headerContainer}>
+        <Title>Clients table</Title>
+        <Button onClick={createClient}>New Client</Button>
+      </div>
       {customers && (
         <Table>
           <thead>
@@ -43,9 +46,7 @@ const Clients = () => {
                 <td>{client.address}</td>
                 <td>{client.phone}</td>
                 <td>
-                  <Button onClick={() => router.push(`${router.asPath}/${client.id}`)}>
-                    View
-                  </Button>
+                  <Button onClick={() => router.push(`${router.asPath}/${client.id}`)}>View</Button>
                 </td>
               </tr>
             ))}

@@ -11,8 +11,8 @@ import {
   Burger,
   Header,
   Navbar,
-  Text,
   Button,
+  Title,
 } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { AuthContext } from '../components/Context/AuthContext';
@@ -27,73 +27,82 @@ import { CustomerProvider } from '../components/Context/CustomerContext';
 import { JobProvider } from '../components/Context/JobContext';
 import { CatalogProvider } from '../components/Context/catalogContext';
 
+import img from '../components/assets/icon.png';
+import { Users, Tools, Repeat, Home } from 'tabler-icons-react';
+import Image from 'next/image';
+
 export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   const router = useRouter();
-  const pb = usePocketbase()
+  const pb = usePocketbase();
   const { Component, pageProps } = props;
-  const [user, setUser] = useState({})
+  const [user, setUser] = useState({});
   const [opened, setOpened] = useState(false);
   const [isAuthenticated, setIsAthenticated] = useState(false);
   const [colorScheme, setColorScheme] = useState<ColorScheme>(props.colorScheme);
 
   useEffect(() => {
     const revalidateUser = async () => {
-      if (pb.authStore.isValid && await pb.collection('user').authRefresh()) {
-        console.log(pb.authStore)
-        setIsAthenticated(true)
-        setUser(pb.authStore.model as {})
+      if (pb.authStore.isValid && (await pb.collection('user').authRefresh())) {
+        console.log(pb.authStore);
+        setIsAthenticated(true);
+        setUser(pb.authStore.model as {});
       }
-    }
-    revalidateUser()
-  }, [])
+    };
+    revalidateUser();
+  }, []);
 
   const login = async (loginInfo: { [key: string]: string }) => {
     console.log(loginInfo);
-    let userData
+    let userData;
     try {
       userData = await pb.collection('user').authWithPassword(loginInfo.email, loginInfo.password);
     } catch (err) {
-      console.log(err)
-      return
+      console.log(err);
+      return;
     }
-    setUser(userData)
+    setUser(userData);
     setIsAthenticated(true);
   };
 
-  const signUp = async (data: { [key: string]: {email: string, password: string} }) => {
-    const { orgData, userData } = data
-    let user, org = undefined
+  const signUp = async (data: { [key: string]: { email: string; password: string } }) => {
+    const { orgData, userData } = data;
+    let user,
+      org = undefined;
 
     try {
-      user = await pb.collection('user').create(userData)
-    } catch(err) {
-      console.error(err)
-      return
-    }
-    
-    try {
-      const data = { ...orgData, orgAdminId: user.id };
-      org = await pb.collection('organization').create(data)
+      user = await pb.collection('user').create(userData);
     } catch (err) {
       console.error(err);
       return;
     }
-    await login({email: userData.email,password: userData.password})
-    
+
     try {
-      await pb.collection('user').update(user.id, {...user,orgId: [...user.orgId, org.id], role: [...user.role, "Admin"]})
-    } catch(err) {
+      const data = { ...orgData, orgAdminId: user.id };
+      org = await pb.collection('organization').create(data);
+    } catch (err) {
       console.error(err);
       return;
     }
-    console.log(user)
-    console.log(org)
-  }
+    await login({ email: userData.email, password: userData.password });
+
+    try {
+      await pb
+        .collection('user')
+        .update(user.id, {
+          ...user,
+          orgId: [...user.orgId, org.id],
+          role: [...user.role, 'admin'],
+        });
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+  };
 
   const logout = () => {
-    pb.authStore.clear()
+    pb.authStore.clear();
     setIsAthenticated(false);
-    setUser({})
+    setUser({});
   };
 
   useEffect(() => {
@@ -119,9 +128,9 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   return (
     <>
       <Head>
-        <title>Mantine next example</title>
+        <title>Serviceful</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
-        <link rel="shortcut icon" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.png" />
       </Head>
 
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
@@ -156,39 +165,111 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
                             width={{ sm: 200, lg: 300 }}
                           >
                             <div className={styles.navSplit}>
-                              <div>
-                                <Link href="/dashboard">
-                                  <Text>Dashboard</Text>
+                              <div
+                                style={{ display: 'flex', gap: '2rem', flexDirection: 'column' }}
+                              >
+                                <Link
+                                  className={styles.link}
+                                  href="/dashboard"
+                                >
+                                  <div
+                                    style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}
+                                  >
+                                    <Home
+                                      color={colorScheme === 'dark' ? 'grey' : 'black'}
+                                      size={32}
+                                      strokeWidth={2}
+                                    />
+                                    <Title className={styles.navTitle} size="sm">
+                                      Dashboard
+                                    </Title>
+                                  </div>
                                 </Link>
-                                <Link href="/clients">
-                                  <Text>Clients</Text>
+                                <Link
+                                  className={styles.link}
+                                  href="/clients"
+                                >
+                                  <div
+                                    style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}
+                                  >
+                                    <Users
+                                      color={colorScheme === 'dark' ? 'grey' : 'black'}
+                                      size={32}
+                                      strokeWidth={2}
+                                    />
+                                    <Title size="sm">Clients</Title>
+                                  </div>
                                 </Link>
-                                <Link href="/jobs">
-                                  <Text>Jobs</Text>
+                                <Link className={styles.link} href="/jobs">
+                                  <div
+                                    style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}
+                                  >
+                                    <Tools
+                                      color={colorScheme === 'dark' ? 'grey' : 'black'}
+                                      size={32}
+                                      strokeWidth={2}
+                                    />
+                                    <Title size="sm">Jobs</Title>
+                                  </div>
                                 </Link>
-                                <Link href="/subscriptions">
-                                  <Text>Subscriptions</Text>
+                                <Link
+                                  className={styles.link}
+                                  href="/subscriptions"
+                                >
+                                  <div
+                                    style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}
+                                  >
+                                    <Repeat
+                                      color={colorScheme === 'dark' ? 'grey' : 'black'}
+                                      size={32}
+                                      strokeWidth={2}
+                                    />
+                                    <Title size="sm">Subscriptions</Title>
+                                  </div>
                                 </Link>
                               </div>
                               <div>
-                                <Button onClick={logout}>Logout</Button>
-                                <ColorSchemeToggle />
+                                <Button fullWidth onClick={logout}>
+                                  Logout
+                                </Button>
                               </div>
                             </div>
                           </Navbar>
                         }
                         header={
                           <Header height={{ base: 50, md: 70 }} p="md">
-                            <div style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                              <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
-                                <Burger
-                                  opened={opened}
-                                  onClick={() => setOpened((o) => !o)}
-                                  size="sm"
-                                  mr="xl"
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                height: '100%',
+                              }}
+                            >
+                              <Title size="md">
+                                <Image
+                                  style={{ marginRight: 10 }}
+                                  alt=""
+                                  src={img.src}
+                                  width={32}
+                                  height={32}
                                 />
-                              </MediaQuery>
-                              <Text>Application header</Text>
+                                ServiceFul
+                              </Title>
+
+                              <div style={{ display: 'flex' }}>
+                                <ColorSchemeToggle />
+
+                                <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+                                  <Burger
+                                    style={{ marginLeft: 20 }}
+                                    opened={opened}
+                                    onClick={() => setOpened((o) => !o)}
+                                    size="sm"
+                                    mr="xl"
+                                  />
+                                </MediaQuery>
+                              </div>
                             </div>
                           </Header>
                         }

@@ -6,6 +6,8 @@ import { useRouter } from 'next/router';
 import { JobContext } from '../../components/Context/JobContext';
 import moment from 'moment';
 
+import styles from './index.module.scss'
+
 const Jobs = () => {
   const router = useRouter();
   const { jobs: jobList } = useContext(JobContext) as any;
@@ -22,9 +24,12 @@ const Jobs = () => {
 
   console.log('jobs in clients page:', jobs);
   return (
-    <div>
+      <div className={styles.pageContainer}>
+        <div className={styles.headerContainer}>
       <Title>Jobs table</Title>
       <Button onClick={createJob}>New Job</Button>
+          
+      </div>
       {jobs && (
         <Table>
           <thead>

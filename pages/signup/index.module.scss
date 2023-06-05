@@ -1,5 +1,21 @@
-.loginFormContainer {
+.logInFormContainer {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  margin-top: 5%;
+}
+
+.inputBox {
+  margin-bottom: 1.25rem;
+  width: 375px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.logoContainer{
+  margin-bottom: 2rem;;
 }

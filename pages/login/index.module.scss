@@ -1,5 +1,19 @@
-.loginFormContainer {
+.loginPageContainer {
   display:flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 5rem;
+}
+
+
+.inputBox{
+  margin-bottom: 1.5rem;
+  width: 275px;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: space-between;
 }
