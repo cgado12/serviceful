@@ -10,7 +10,7 @@ import styles from './index.module.scss'
 
 const Jobs = () => {
   const router = useRouter();
-  const { jobs: jobList } = useContext(JobContext) as any;
+  const { jobs: jobList, getJobData } = useContext(JobContext) as any;
   const { customers } = useContext(CustomerContext) as any;
   const [jobs, setJobs] = useState<any>([]);
 
@@ -18,15 +18,18 @@ const Jobs = () => {
     setJobs(jobList);
   }, [jobList]);
 
+  useEffect(() => {
+    getJobData();
+  }, []);
+
   const createJob = () => {
     router.push('jobs/create');
   };
 
-  console.log('jobs in clients page:', jobs);
   return (
       <div className={styles.pageContainer}>
         <div className={styles.headerContainer}>
-      <Title>Jobs table</Title>
+      <Title>Jobs</Title>
       <Button onClick={createJob}>New Job</Button>
           
       </div>

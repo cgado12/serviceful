@@ -9,7 +9,6 @@ const EditJob = () => {
   const [job, setJob] = useState({});
 
   const { id } = router.query;
-  console.log(id);
 
   useEffect(() => {
     const getJob = async () => {
@@ -20,8 +19,6 @@ const EditJob = () => {
     };
     getJob();
   }, []);
-
-  console.log(job);
 
   return (
     <div>

@@ -2,10 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { Client, Environment, UpsertCatalogObjectRequest } from 'square';
 import { v4 as UUID } from 'uuid';
 
-// const url = 'https://connect.squareupsandbox.com';
-// const sndbox = 'sandbox-sq0idb-ep73XInOfGXsN8bcG6fGlg';
-// const at = 'EAAAEJJWYvfIeYTiu63NMKVcgxMJZC99FH3xOKp4-TD97_6fpYiW_xxqOSRM5lcQ';
-
 // eslint-disable-next-line func-names
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -13,7 +9,7 @@ import { v4 as UUID } from 'uuid';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const client = new Client({
-    accessToken: 'EAAAEJJWYvfIeYTiu63NMKVcgxMJZC99FH3xOKp4-TD97_6fpYiW_xxqOSRM5lcQ',
+    accessToken: process.env.NEXT_PUBLIC_SQUARE_AT, //'EAAAEJJWYvfIeYTiu63NMKVcgxMJZC99FH3xOKp4-TD97_6fpYiW_xxqOSRM5lcQ',
     environment: Environment.Sandbox,
   });
   const { catalogApi } = client;

@@ -17,8 +17,6 @@ export const AuthContext = createContext<AuthContextProps>({
 // Create the Auth Provider component
 // export const AuthProvider = ({ children, ...contextProps }: any) => {
 //   const [authInfo, setAuthInfo] = useState()
-
-//   console.log(contextProps);
   
 //   useEffect(() => {
     

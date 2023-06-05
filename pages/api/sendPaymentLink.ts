@@ -8,7 +8,7 @@ import { v4 as UUID } from 'uuid';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const client = new Client({
-    accessToken: 'EAAAEJJWYvfIeYTiu63NMKVcgxMJZC99FH3xOKp4-TD97_6fpYiW_xxqOSRM5lcQ',
+    accessToken: process.env.NEXT_PUBLIC_SQUARE_AT,
     environment: Environment.Sandbox,
   });
   const { checkoutApi } = client;

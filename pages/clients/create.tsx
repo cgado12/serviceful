@@ -55,9 +55,9 @@ const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
 
   return (
     <div className={styles.CreateFormContainer}>
-      <div>
-        <Button onClick={() => router.back()}>BackPlease!</Button>
+      <div className={styles.headerContainer}>
         <Title>Create Client</Title>
+        <Button onClick={() => router.back()}>Back</Button>
       </div>
       <form>
         <TextInput
@@ -109,6 +109,7 @@ const CreateClient: React.FC<CreateClientFormProps> = ({ onSubmit }) => {
         />
 
         <Button
+          style={{marginTop: 30}}
           disabled={!Object.entries(formData).every(([key, value]) => key && value)}
           onClick={handleSubmit}
         >

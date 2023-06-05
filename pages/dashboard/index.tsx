@@ -3,11 +3,11 @@ import { useRouter } from "next/router";
 import { useContext } from "react";
 import { UserContext } from "../../components/Context/UserContext";
 
+import styles from './index.module.scss';
 
 const Dashboard = () => {
   const router = useRouter()
   const user = useContext(UserContext)
-  console.log(user)
 
   const createClient = () => {
    router.push('clients/create')
@@ -15,21 +15,23 @@ const Dashboard = () => {
   const createJob = () => {
     router.push('jobs/create');
   }
-  const createPayment = () => {
-    router.push('payments/create');
-  }
 
 
-return(
-  <div>
-    <Title>Dashboard</Title>
-    <div>
-      
-      <Button onClick={createClient}>New Client</Button>
-      <Button onClick={createJob}>New Job</Button>
-      <Button onClick={createPayment}>Take Payment</Button>
+
+return (
+  <div className={styles.pageContainer}>
+    
+    <div className={styles.headerContainer}>
+      <div>
+        <Title>Dashboard</Title>
+      </div>
+      <div className={styles.buttonContainer}>
+        <Button onClick={createClient}>New Client</Button>
+        <Button onClick={createJob}>New Job</Button>
+      </div>
     </div>
+
   </div>
-)};
+);};
 
 export default Dashboard;

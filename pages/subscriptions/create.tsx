@@ -1,10 +1,11 @@
-import { ChangeEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, useContext, useState } from 'react';
 import { useRouter } from 'next/router';
-import { TextInput, PasswordInput, Button, Title, Select, Checkbox, Card } from '@mantine/core';
+import { TextInput, Text, Button, Title, Select, Checkbox, Card } from '@mantine/core';
 
 import styles from './create.module.scss';
 import { UserContext } from '../../components/Context/UserContext';
 import usePocketbase from '../../hooks/usePocketbase';
+import {v4 as UUID} from 'uuid';
 
 const CreateCatalog: React.FC = () => {
   const pb = usePocketbase();
@@ -20,6 +21,7 @@ const CreateCatalog: React.FC = () => {
   };
 
   const initialPhase = {
+    uid: '',
     cadence: 'MONTHLY',
     periods: 1,
     recurringPriceMoney: {
@@ -58,21 +60,19 @@ const CreateCatalog: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    phases?.map(
-      (phase) => {
-          // @ts-ignore
-           if (!phase.periods || phase.periods === 0 || phase.periods === '0') {
-             phase.periods = 1;
-           }
-        (phase.recurringPriceMoney.amount = parseInt(`${phase.recurringPriceMoney.amount}00`, 10))
-        return phase
+    phases?.map((phase,idx) => {
+      // @ts-ignore
+      if (!phase.periods || phase.periods === 0 || phase.periods === '0') {
+        phase.periods = 1;
       }
-    );
+      phase.recurringPriceMoney.amount = parseInt(`${phase.recurringPriceMoney.amount}00`, 10);
+      phase.uid = UUID()
+      phase.ordinal = idx
+      return phase;
+    });
     initialCatalogData.subscriptionPlanData.name = formData.title;
     initialCatalogData.subscriptionPlanData.phases = phases;
-    initialCatalogData.id = `#${formData.title.replace(' ', '_')}`;
-
-
+    initialCatalogData.id = `#${formData.title.replace(/ /g, '_')}`;
 
     try {
       const response = await fetch('/api/createCatalog', {
@@ -92,15 +92,19 @@ const CreateCatalog: React.FC = () => {
     }
   };
 
-  console.log(phases);
-
   return (
-    <div className={styles.CreateJobContainer}>
-      <div>
-        <Button onClick={() => router.back()}>BackPlease!</Button>
-        <Title>Create Subscription Plan</Title>
+    <div style={{ padding: 40 }} className={styles.CreateJobContainer}>
+      <div className={styles.headerContainer}>
+        <div>
+          <Title>Create Subscription Plan</Title>
+          <Text style={{ marginTop: 10 }} size="md">
+            Phases for a subscription plan describe the lifecycle of the plan. For example you can
+            create a plan that starts as a free trial and transisitons to intervalled payments
+          </Text>
+        </div>
+        <Button onClick={() => router.back()}>Back</Button>
       </div>
-      <div>Note about phases in a subscription - describe how they work</div>
+
       <form>
         <TextInput
           label="Title"
@@ -120,83 +124,101 @@ const CreateCatalog: React.FC = () => {
           value={formData?.description || ''}
           onChange={handleChange}
         />
-        Phases for the Subscription:
-        <Button
-          onClick={() => setPhases([...phases, { ...initialPhase, ordinal: phases.length - 1 }])}
-        >
-          Add Phase
-        </Button>
-        {phases.map((phase, idx) => (
-          <Card key={`phase-${idx}`}>
-            <Button onClick={() => removePhase(idx)}>REMOVE</Button>
-            <Select
-              label="What interval do you want the customer to pay?"
-              description="Please only use whole numbers"
-              placeholder="Please pick a subscription cadence"
-              value={phase.cadence}
-              searchable
-              onChange={(value) => {
-                phases[idx].cadence = value || 'MONTHLY';
-                setPhases([...phases]);
-              }}
-              data={[
-                {
-                  value: 'DAILY',
-                  label: 'DAILY',
-                },
-                {
-                  value: 'WEEKLY',
-                  label: 'WEEKLY',
-                },
-                {
-                  value: 'MONTHLY',
-                  label: 'MONTHLY',
-                },
-                {
-                  value: 'QUARTERLY',
-                  label: 'QUARTERLY',
-                },
-                {
-                  value: 'ANNUALLY',
-                  label: 'ANNUALLY',
-                },
-              ]}
-            />
-            <TextInput
-              label="How long should the subscription be?"
-              placeholder="Please select the number of intervals to use"
-              id="frequency"
-              description="Set to 1 if there is no end date"
-              required
-              radius="md"
-              value={phase.periods}
-              onChange={(e: any) => {
-                phases[idx].periods = e.currentTarget.value || 1;
-                setPhases([...phases]);
-              }}
-            />
-            <TextInput
-              label="How much is this subscription?"
-              placeholder="$3.50"
-              id="amount"
-              required
-              radius="md"
-              value={phase.recurringPriceMoney.amount.toString()}
-              onChange={(e: any) => {
-                phases[idx].recurringPriceMoney.amount = e.currentTarget.value;
-                setPhases([...phases]);
-              }}
-            />
-          </Card>
-        ))}
-        <Button
-          // disabled={
-          //   !Object.entries(formData).every(
-          //     ([key, value]) => (key && value) || typeof value === 'boolean'
-          //   )
-          // }
-          onClick={handleSubmit}
-        >
+
+        <div style={{ marginTop: 40 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 20,
+            }}
+          >
+            <Title size="xs">Phases for the Subscription:</Title>
+            <Button
+              onClick={() =>
+                setPhases([...phases, { ...initialPhase, ordinal: phases.length }])
+              }
+            >
+              Add Phase
+            </Button>
+          </div>
+
+          {phases.map((phase, idx) => (
+            <Card
+              key={`phase-${idx}`}
+              style={(idx > 0 && { marginTop: 30 }) || {}}
+              padding={30}
+              radius={20}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <Select
+                  label="What interval do you want the customer to pay?"
+                  description="Please only use whole numbers"
+                  placeholder="Please pick a subscription cadence"
+                  value={phase.cadence}
+                  searchable
+                  onChange={(value) => {
+                    phases[idx].cadence = value || 'MONTHLY';
+                    setPhases([...phases]);
+                  }}
+                  data={[
+                    {
+                      value: 'DAILY',
+                      label: 'DAILY',
+                    },
+                    {
+                      value: 'WEEKLY',
+                      label: 'WEEKLY',
+                    },
+                    {
+                      value: 'MONTHLY',
+                      label: 'MONTHLY',
+                    },
+                    {
+                      value: 'QUARTERLY',
+                      label: 'QUARTERLY',
+                    },
+                    {
+                      value: 'ANNUALLY',
+                      label: 'ANNUALLY',
+                    },
+                  ]}
+                />
+                {idx > 0 && <Button onClick={() => removePhase(idx)}>Remove</Button>}
+              </div>
+              <TextInput
+                style={{ marginTop: 15 }}
+                label="How long should the subscription be?"
+                placeholder="Please select the number of intervals to use"
+                id="frequency"
+                description="Set to 1 if there is no end date"
+                required
+                radius="md"
+                value={phase.periods}
+                onChange={(e: any) => {
+                  phases[idx].periods = e.currentTarget.value || 1;
+                  setPhases([...phases]);
+                }}
+              />
+              <TextInput
+                style={{ marginTop: 15 }}
+                label="How much is this subscription?"
+                placeholder="$3.50"
+                id="amount"
+                required
+                radius="md"
+                value={phase.recurringPriceMoney.amount.toString()}
+                onChange={(e: any) => {
+                  phases[idx].recurringPriceMoney.amount = e.currentTarget.value;
+                  setPhases([...phases]);
+                }}
+              />
+            </Card>
+          ))}
+        </div>
+
+        <Button style={{ marginTop: 30 }} onClick={handleSubmit}>
           Create
         </Button>
       </form>

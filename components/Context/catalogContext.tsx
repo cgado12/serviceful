@@ -23,7 +23,5 @@ export const CatalogProvider = ({ children }: any) => {
     getCatalogData();
   }, [user?.record?.id]);
 
-  console.log(catalogs);
-
   return <CatalogContext.Provider value={{ catalogs: {...catalogs} , getCatalogData }}>{children}</CatalogContext.Provider>;
 };

@@ -10,6 +10,8 @@
   all: unset;
   &:hover{
     cursor: pointer;
+    border-bottom: 1px #1971c2 solid;
+    border-radius: 5px;
   }
   &:active{
     font-weight: bold;

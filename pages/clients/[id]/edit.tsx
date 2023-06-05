@@ -10,7 +10,6 @@ const EditClient = () => {
   const [user, setUser] = useState<UserInfo>();
 
   const { id } = router.query;
-  console.log(id);
 
   useEffect(() => {
     const getUser = async () => {

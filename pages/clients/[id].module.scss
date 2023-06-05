@@ -1,9 +1,15 @@
-.createFormContainer {
+.displayBox{
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: row;
 }
 
+.userInfoBox{
+  margin-top: 2rem;
+}
+
+.pageContainer {
+  padding: 2rem;
+}
 .headerContainer {
   display: flex;
   justify-content: space-between;

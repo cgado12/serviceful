@@ -103,7 +103,6 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
       }
       const data = {...formData, customerId: (formData.customerId as any)?.id, start: new Date(formData.start), end: new Date(formData.end)}
       
-      
       const response = await pb.collection('job').create(JSON.stringify(data));
       
       router.push(`/jobs/${response.id}`);
@@ -113,10 +112,10 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
   };
 
   return (
-    <div className={styles.CreateJobContainer}>
-      <div>
-        <Button onClick={() => router.back()}>BackPlease!</Button>
+    <div style={{padding: 40}} className={styles.CreateJobContainer}>
+      <div className={styles.headerContainer}>
         <Title>Create Job</Title>
+        <Button onClick={() => router.back()}>Back</Button>
       </div>
       <form>
         <TextInput
@@ -176,6 +175,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           onChange={handleStartDateChange}
         />
         <Checkbox
+          style={{ marginTop: 30 }}
           label="Does this job spans multiple days"
           color="teal"
           checked={spansDays}
@@ -197,6 +197,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
         )}
 
         <Checkbox
+          style={{ marginTop: 30 }}
           label="Does this job have a recurring payment? Would you like to make this a subscription?"
           color="teal"
           checked={isPaymentRecurring}
@@ -218,7 +219,9 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           />
         )}
 
-        <Button onClick={handleSubmit}>Create</Button>
+        <Button style={{ marginTop: 30 }} onClick={handleSubmit}>
+          Create
+        </Button>
       </form>
     </div>
   );

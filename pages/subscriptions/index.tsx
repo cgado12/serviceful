@@ -6,12 +6,16 @@ import styles from './index.module.scss';
 
 const Subscriptions = () => {
   const router = useRouter();
-  const { catalogs } = useContext(CatalogContext) as any;
+  const { catalogs, getCatalogData } = useContext(CatalogContext) as any;
   const [subscriptions, setSubscriptions] = useState();
 
   useEffect(() => {
     setSubscriptions(catalogs);
   }, [catalogs]);
+
+  useEffect(() => {
+    getCatalogData();
+  }, [])
 
   const createSubscription = () => {
     router.push('subscriptions/create');
@@ -21,10 +25,10 @@ const Subscriptions = () => {
     <div className={styles.pageContainer}>
       <div className={styles.headerContainer}>
         <div>
-          <Title>Subscription packages</Title>
+          <Title>Subscription Packages</Title>
           <Title size="md">Create and update your subscription packages</Title>
         </div>
-        <Button onClick={createSubscription}>New Subscription Package</Button>
+        <Button onClick={createSubscription}>Create Subscription Package</Button>
       </div>
 
       {subscriptions && (

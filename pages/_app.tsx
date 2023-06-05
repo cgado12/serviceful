@@ -43,7 +43,6 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   useEffect(() => {
     const revalidateUser = async () => {
       if (pb.authStore.isValid && (await pb.collection('user').authRefresh())) {
-        console.log(pb.authStore);
         setIsAthenticated(true);
         setUser(pb.authStore.model as {});
       }
@@ -52,7 +51,6 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   }, []);
 
   const login = async (loginInfo: { [key: string]: string }) => {
-    console.log(loginInfo);
     let userData;
     try {
       userData = await pb.collection('user').authWithPassword(loginInfo.email, loginInfo.password);

@@ -3,3 +3,21 @@
   justify-content: center;
   align-items: center;
 }
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4rem;
+}
+
+.displayBox {
+  display: flex;
+  flex-direction: row;
+}
+
+.userInfoBox {
+  margin-top: 2rem;
+}
+
+.pageContainer {
+  padding: 2rem;
+}

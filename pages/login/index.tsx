@@ -23,12 +23,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
     useEffect(() => {
       const keyDownHandler = (event: any) => {
-        console.log(event)
         if (event.key === 'Enter') {
-          // event.preventDefault();
-
-          // 👇️ call submit function here
-          console.log(event.key)
           // handleSubmit(); <-- TODO: this doesnt work consistently?
           document.getElementById('loginBtn')?.click();
         }
@@ -48,7 +43,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = async () => {
     if (Object.entries(loginInfo).every(([key, value]) => key && value)) {
-      console.log("shouldLogin")
       await login(loginInfo)
     }
   };

@@ -1,4 +1,4 @@
-import { Button, Card, Select, Text } from '@mantine/core';
+import { Button, Card, Select, Text, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import usePocketbase from '../../hooks/usePocketbase';
 import { useContext, useEffect, useState } from 'react';
@@ -37,8 +37,6 @@ const ViewJob = () => {
     };
     getJob();
   }, []);
-
-  console.log(job);
 
   const finalizeJob = () => {
     setCollectPaymnt(!collectPayment);
@@ -91,17 +89,54 @@ const ViewJob = () => {
   };
 
   return (
-    <div>
-      <Button onClick={() => router.back()}>BackPlease!</Button>Client Name
-      <Button
-        onClick={() => pb.collection('job').update(job.id, { ...job, jobStatus: 'complete' })}
-      >
-        Mark as Complete
-      </Button>
-      <Button onClick={() => router.push(router.asPath + '/edit')}>Edit</Button>
-      <Button>delete</Button>
-      <div>The job & user info...</div>
+    <div className={styles.pageContainer}>
       <div>
+        <div className={styles.headerContainer}>
+          <Title>Job Information</Title>
+          <div>
+            <Button onClick={() => router.back()}>BackPlease!</Button>
+            <Button onClick={() => router.push(router.asPath + '/edit')}>Edit</Button>
+            <Button onClick={() => alert("Not implemented yet")}>Delete</Button>
+          </div>
+        </div>
+        <Button
+          style={{
+            marginBottom: 40,
+          }}
+          onClick={() => pb.collection('job').update(job.id, { ...job, jobStatus: 'complete' })}
+        >
+          Mark as Complete
+        </Button>
+      </div>
+      {job && (
+        <div>
+          <div className={styles.userInfoBox}>
+            <div className={styles.displayBox}>
+              <Text weight="bold">Name: </Text>
+              <Text>{` ${job?.title} `}</Text>
+            </div>
+
+            <div className={styles.displayBox}>
+              <Text weight="bold">Address: </Text>
+              <Text>{` ${job?.address}`}</Text>
+            </div>
+
+            <div className={styles.displayBox}>
+              <Text weight="bold">Notes: </Text>
+              <Text>{` ${job?.notes}`}</Text>
+            </div>
+
+            <div className={styles.displayBox}>
+              <Text weight="bold">Status: </Text>
+              <Text>{` ${job?.jobStatus}`}</Text>
+            </div>
+          </div>
+        </div>
+      )}
+      <Text style={{
+        marginTop: 20
+      }}>...show some user and subscription info</Text>
+      <div className={styles.paymentContainer}>
         <Button onClick={sendPaymentLink}>Send Payment Link</Button>
 
         <Button onClick={() => setShouldAddSubscription(!shouldAddSubscription)}>
@@ -128,7 +163,7 @@ const ViewJob = () => {
         {collectPayment && (
           <Card shadow="xs" padding="lg" className={styles.cardContainer}>
             <PaymentForm
-              applicationId="sandbox-sq0idb-ep73XInOfGXsN8bcG6fGlg"
+              applicationId={process.env.NEXT_PUBLIC_SQUARE_APP_ID || ''}
               locationId="L70D7SSS832FY"
               cardTokenizeResponseReceived={async (token, verifiedBuyer) => {
                 if (token && token.status === 'OK') {
@@ -147,7 +182,11 @@ const ViewJob = () => {
             </PaymentForm>
           </Card>
         )}
-        {paymentLink && <a href={paymentLink} target="_blank" ><Text>Click Here to pay!</Text></a>}
+        {paymentLink && (
+          <a href={paymentLink} target="_blank">
+            <Text>Click Here to pay!</Text>
+          </a>
+        )}
       </div>
     </div>
   );
