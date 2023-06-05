@@ -27,6 +27,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
   const [isJobRecurring, setIsJobRecurring] = useState(false);
   const [isPaymentRecurring, setIsPaymentRecurring] = useState(false);
 
+
   const initialFormData = {
     title: '',
     notes: '',
@@ -37,8 +38,9 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
     jobStatus: 'pending',
     isJobRecurring: false,
     isPaymentRecurring: false,
-    subscriptionId: '',
-    createdBy: [user?.record?.id], // add this
+    subscriptionId: '', 
+    subscriptionPlanId:'',
+    createdBy: [user?.record?.id],
     customerId: '',
     orgId: [user?.record?.orgId[0]],
   };
@@ -95,13 +97,24 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = async () => {
     try {
+      let resp = undefined
       if (isPaymentRecurring) {
-        await fetch('/api/createSubscription', {
+        resp = await fetch('/api/createSubscription', {
           method: 'POST',
           body: JSON.stringify(formData),
         });
       }
-      const data = {...formData, customerId: (formData.customerId as any)?.id, start: new Date(formData.start), end: new Date(formData.end)}
+      let id = undefined
+      if (resp) {
+        const body = await resp.json();
+        const subscriptionObj = JSON.parse(body.body);
+        id = subscriptionObj?.subscription?.id
+        
+      }
+      const data = {
+        ...formData, customerId: (formData.customerId as any)?.id, start: new Date(formData.start), end: new Date(formData.end)
+        , subscriptionPlanId: id || ''
+      }
       
       const response = await pb.collection('job').create(JSON.stringify(data));
       
@@ -209,6 +222,7 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           <Select
             label="Please assign a subscription"
             placeholder="Pick a subscription"
+            description="Setting this here will override the cost of the job to the subscription's price"
             value={subscription}
             searchable
             onChange={setSubscription}

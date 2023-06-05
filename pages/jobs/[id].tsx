@@ -1,4 +1,4 @@
-import { Button, Card, Select, Text, Title } from '@mantine/core';
+import { Button, Card, Checkbox, Divider, Select, Text, Title } from '@mantine/core';
 import { useRouter } from 'next/router';
 import usePocketbase from '../../hooks/usePocketbase';
 import { useContext, useEffect, useState } from 'react';
@@ -8,6 +8,7 @@ import styles from './[id].module.scss';
 import { CatalogContext } from '../../components/Context/catalogContext';
 import { CustomerContext } from '../../components/Context/CustomerContext';
 import { JobContext } from '../../components/Context/JobContext';
+import { Currency } from 'tabler-icons-react';
 
 const ViewJob = () => {
   const pb = usePocketbase();
@@ -19,8 +20,10 @@ const ViewJob = () => {
   const [collectPayment, setCollectPaymnt] = useState(false);
   const [shouldAddSubscription, setShouldAddSubscription] = useState(false);
   const [subscription, setSubscription] = useState<string | null>(null);
+  const [useJobPrice, setUseJobPrice] = useState(false);
+  const [assignedSubscription, setAssignedSubscription] = useState({} as any);
 
-  const [paymentLink, setPaymentLink] = useState('')
+  const [paymentLink, setPaymentLink] = useState('');
 
   const { id } = router.query;
 
@@ -35,8 +38,26 @@ const ViewJob = () => {
         setJob(j);
       }
     };
-    getJob();
+    if (jobs) {
+      getJob();
+    }
   }, []);
+
+  useEffect(() => {
+    const getSubscripttion = async () => {
+      const response = await fetch('/api/getSubscription', {
+        method: 'POST',
+        body: JSON.stringify({ id: job?.subscriptionPlanId }),
+      });
+      const body = await response.json();
+      const obj = JSON.parse(body.body);
+      setAssignedSubscription(obj);
+    };
+
+    if (job.subscriptionPlanId) {
+      getSubscripttion();
+    }
+  }, [job]);
 
   const finalizeJob = () => {
     setCollectPaymnt(!collectPayment);
@@ -50,15 +71,17 @@ const ViewJob = () => {
     const body = await response.json();
     const obj = JSON.parse(body.body);
 
-    setPaymentLink(obj?.payment_link?.url)
-    
-    let phoneNumber = Object.values(customers).find((c: any) => c.id === job.customerId)
+    setPaymentLink(obj?.payment_link?.url);
+
+    let phoneNumber = Object.values(customers).find((c: any) => c.id === job.customerId);
     // @ts-ignore
-    phoneNumber = phoneNumber?.phone
+    phoneNumber = phoneNumber?.phone;
     const resp = await fetch('/api/sendPaymentText', {
       method: 'POST',
       body: JSON.stringify({
-        ...job, ...obj, phoneNumber
+        ...job,
+        ...obj,
+        phoneNumber,
       }),
     });
   };
@@ -66,14 +89,22 @@ const ViewJob = () => {
   const addSubscription = async () => {
     const catalog = Object.values(catalogItems).find((ci: any) => ci.title === subscription) as any;
     const customer = Object.values(customers).find((c: any) => c.id === job.customerId) as any;
-
+    let priceOverride = undefined;
+    if (useJobPrice) {
+      priceOverride = {
+        amount: job.amountDue,
+        Currency: 'USD',
+      };
+    }
     const data = {
       subscriptionId: catalog?.catalogId,
       customerId: {
         squareCustomerId: customer?.squareCustomerId,
       },
       start: job.start,
+      priceOverrideMoney: priceOverride,
     };
+
     const response = await fetch('/api/createSubscription', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -83,6 +114,7 @@ const ViewJob = () => {
       const body = await response.json();
       const subscriptionObj = JSON.parse(body.body);
       job.catalogId = subscriptionObj.plan_id;
+      job.subscriptionPlanId = subscriptionObj.id;
       const resp = await pb.collection('subscriptions').create(JSON.stringify(job));
       router.push(`/subscriptions/${resp.id}`);
     }
@@ -96,17 +128,51 @@ const ViewJob = () => {
           <div>
             <Button onClick={() => router.back()}>BackPlease!</Button>
             <Button onClick={() => router.push(router.asPath + '/edit')}>Edit</Button>
-            <Button onClick={() => alert("Not implemented yet")}>Delete</Button>
+            <Button onClick={() => alert('Not implemented yet')}>Delete</Button>
           </div>
         </div>
-        <Button
-          style={{
-            marginBottom: 40,
-          }}
-          onClick={() => pb.collection('job').update(job.id, { ...job, jobStatus: 'complete' })}
-        >
-          Mark as Complete
-        </Button>
+        <Divider />
+        <div style={{ marginTop: 30 }}>
+          <Button
+            style={{
+              marginBottom: 40,
+            }}
+            onClick={() => pb.collection('job').update(job.id, { ...job, jobStatus: 'complete' })}
+          >
+            Mark as Complete
+          </Button>
+          <Button onClick={sendPaymentLink}>Send Payment Link</Button>
+          {assignedSubscription && (
+            <Button
+              onClick={async () => {
+                const response = await fetch('/api/pauseSubscription', {
+                  method: 'POST',
+                  body: JSON.stringify({ id: job.subscriptionPlanId }),
+                });
+                const body = await response.json();
+                const obj = JSON.parse(body.body);
+                setAssignedSubscription({ ...obj });
+              }}
+            >
+              Pause Subscription
+            </Button>
+          )}
+          {assignedSubscription && assignedSubscription?.subscription?.status === "PAUSED" && (
+            <Button
+              onClick={async () => {
+                const response = await fetch('/api/resumeSubscription', {
+                  method: 'POST',
+                  body: JSON.stringify({ id: job.subscriptionPlanId }),
+                });
+                const body = await response.json();
+                const obj = JSON.parse(body.body);
+                setAssignedSubscription({ ...obj });
+              }}
+            >
+              Resume Subscription
+            </Button>
+          )}
+        </div>
       </div>
       {job && (
         <div>
@@ -133,12 +199,31 @@ const ViewJob = () => {
           </div>
         </div>
       )}
-      <Text style={{
-        marginTop: 20
-      }}>...show some user and subscription info</Text>
-      <div className={styles.paymentContainer}>
-        <Button onClick={sendPaymentLink}>Send Payment Link</Button>
+      <Text
+        style={{
+          marginTop: 20,
+        }}
+      >
+        <div>...show some user and subscription info</div>
+        {job?.subscriptionId && (
+          <>
+            <Text>
+              Part of subscription with: catalogId: {job.subscriptionId}, subscriptionPlan:{' '}
+              {job?.subscriptionPlanId}
+            </Text>
+          </>
+        )}
+        {assignedSubscription && (
+          <Text>
+            <div>
+              Subscription Name in Square: {assignedSubscription?.subscription?.source?.name}
+            </div>
+            <div>Subscription Status in Square: {assignedSubscription?.subscription?.status}</div>
+          </Text>
+        )}
+      </Text>
 
+      <div className={styles.paymentContainer}>
         <Button onClick={() => setShouldAddSubscription(!shouldAddSubscription)}>
           Add to Subscription
         </Button>
@@ -155,11 +240,24 @@ const ViewJob = () => {
                 label: c.title,
               }))}
             />
+
+            <Checkbox
+              style={{ marginTop: 30 }}
+              label="Override the subscription price?"
+              color="teal"
+              checked={useJobPrice}
+              onChange={() => {
+                setUseJobPrice(!useJobPrice);
+              }}
+            />
+
             <Button onClick={addSubscription}>Add</Button>
           </>
         )}
 
-        <Button onClick={finalizeJob}>Take fixed payment</Button>
+        <Button style={{ marginTop: 30 }} onClick={finalizeJob}>
+          Take fixed payment
+        </Button>
         {collectPayment && (
           <Card shadow="xs" padding="lg" className={styles.cardContainer}>
             <PaymentForm
