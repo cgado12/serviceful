@@ -173,7 +173,6 @@ const CreateJob: React.FC<CreateJobFormProps> = ({ onSubmit }) => {
           label="Price"
           placeholder="Enter the amount due for job completion"
           id="amountDue"
-          required
           radius="md"
           value={formData?.amountDue || ''}
           onChange={handleChange}

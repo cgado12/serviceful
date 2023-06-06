@@ -92,8 +92,8 @@ const ViewJob = () => {
     let priceOverride = undefined;
     if (useJobPrice) {
       priceOverride = {
-        amount: job.amountDue,
-        Currency: 'USD',
+        amount: parseInt(job.amountDue,10),
+        currency: 'USD',
       };
     }
     const data = {
@@ -116,7 +116,7 @@ const ViewJob = () => {
       job.catalogId = subscriptionObj.plan_id;
       job.subscriptionPlanId = subscriptionObj.id;
       const resp = await pb.collection('subscriptions').create(JSON.stringify(job));
-      router.push(`/subscriptions/${resp.id}`);
+      router.push(`/jobs/${resp.id}`);
     }
   };
 

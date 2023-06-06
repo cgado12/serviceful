@@ -64,7 +64,7 @@ return (
                 <td>{`${job?.start ? moment(job.start).format('MM/DD/YYYY') : ''}`}</td>
                 <td> {job.amountDue}</td>
                 <td>
-                  <Button onClick={() => router.push(`${router.asPath}/${job.id}`)}>View</Button>
+                  <Button onClick={() => router.push(`jobs/${job.id}`)}>View</Button>
                 </td>
               </tr>
             ))}
