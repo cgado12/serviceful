@@ -1,34 +1,11 @@
 
-## Features
+## Serviceful
 
-This template comes with several essential features:
+### Setup
+- Please pull the repo
+- Ensure you have `node 18` and then run `yarn install` in the project directory
+- In a separate terminal navigate to the projects `/backend/` folder and run `./pocketbase serve` to start the backend
+- copy the env file with :`cp .env.example .env.local` and fill out the necessary info
+- You may start the frontend by running `yarn dev`
+- Please use the credentials provided in the testing instructions to log into the application
 
-- Server side rendering setup for Mantine
-- Color scheme is stored in cookie to avoid color scheme mismatch after hydration
-- Storybook with color scheme toggle
-- Jest with react testing library
-- ESLint setup with [eslint-config-mantine](https://github.com/mantinedev/eslint-config-mantine)
-
-## npm scripts
-
-### Build and dev scripts
-
-- `dev` – start dev server
-- `build` – bundle application for production
-- `export` – exports static website to `out` folder
-- `analyze` – analyzes application bundle with [@next/bundle-analyzer](https://www.npmjs.com/package/@next/bundle-analyzer)
-
-### Testing scripts
-
-- `typecheck` – checks TypeScript types
-- `lint` – runs ESLint
-- `prettier:check` – checks files with Prettier
-- `jest` – runs jest tests
-- `jest:watch` – starts jest watch
-- `test` – runs `jest`, `prettier:check`, `lint` and `typecheck` scripts
-
-### Other scripts
-
-- `storybook` – starts storybook dev server
-- `storybook:build` – build production storybook bundle to `storybook-static`
-- `prettier:write` – formats all files with Prettier
