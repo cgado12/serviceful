@@ -21,7 +21,7 @@ const ViewJob = () => {
   const [shouldAddSubscription, setShouldAddSubscription] = useState(false);
   const [subscription, setSubscription] = useState<string | null>(null);
   const [useJobPrice, setUseJobPrice] = useState(false);
-  const [assignedSubscription, setAssignedSubscription] = useState({} as any);
+  const [assignedSubscription, setAssignedSubscription] = useState < any |undefined>(undefined);
 
   const [paymentLink, setPaymentLink] = useState('');
 
@@ -120,6 +120,11 @@ const ViewJob = () => {
     }
   };
 
+    const getCustomerName = () => {
+      const user: any = Object.values(customers)?.find((c: any) => c.id === job.customerId);
+      return `${user?.firstName} ${user?.lastName}`;
+    };
+
   return (
     <div className={styles.pageContainer}>
       <div>
@@ -157,7 +162,7 @@ const ViewJob = () => {
               Pause Subscription
             </Button>
           )}
-          {assignedSubscription && assignedSubscription?.subscription?.status === "PAUSED" && (
+          {assignedSubscription && assignedSubscription?.subscription?.status === 'PAUSED' && (
             <Button
               onClick={async () => {
                 const response = await fetch('/api/resumeSubscription', {
@@ -180,6 +185,11 @@ const ViewJob = () => {
             <div className={styles.displayBox}>
               <Text weight="bold">Name: </Text>
               <Text>{` ${job?.title} `}</Text>
+            </div>
+
+            <div className={styles.displayBox}>
+              <Text weight="bold">Customer Name: </Text>
+              <Text>{getCustomerName()}</Text>
             </div>
 
             <div className={styles.displayBox}>
@@ -224,9 +234,11 @@ const ViewJob = () => {
       </Text>
 
       <div className={styles.paymentContainer}>
-        <Button onClick={() => setShouldAddSubscription(!shouldAddSubscription)}>
-          Add to Subscription
-        </Button>
+        {!assignedSubscription && (
+          <Button onClick={() => setShouldAddSubscription(!shouldAddSubscription)}>
+            Add to Subscription
+          </Button>
+        )}
         {shouldAddSubscription && (
           <>
             <Select

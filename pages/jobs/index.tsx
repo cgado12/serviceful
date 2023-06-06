@@ -27,11 +27,10 @@ const Jobs = () => {
   };
 
   return (
-      <div className={styles.pageContainer}>
-        <div className={styles.headerContainer}>
-      <Title>Jobs</Title>
-      <Button onClick={createJob}>New Job</Button>
-          
+    <div className={styles.pageContainer}>
+      <div className={styles.headerContainer}>
+        <Title>Jobs</Title>
+        <Button onClick={createJob}>New Job</Button>
       </div>
       {jobs && (
         <Table>
@@ -39,6 +38,7 @@ const Jobs = () => {
             <tr>
               <th>Title</th>
               <th>Description</th>
+              <th>Address</th>
               <th>Phone</th>
               <th>Appointment</th>
               <th>Payment</th>
@@ -48,17 +48,18 @@ const Jobs = () => {
           <tbody>
             {Object.values(jobs)?.map((job: any, idx: number) => (
               <tr key={`${job?.address}-${idx}`}>
-                <td>{job.title}</td>
-                <td>{job.address}</td>
+                <td>{job?.title}</td>
+                <td>{job?.notes}</td>
+                <td>{job?.address}</td>
+                <td>
+                  
                 {/** @ts-ignore */}
-                <td>{Object.values(customers).find((c:any)=>c.id === job.customerId)?.phone || ''}</td>
+                  {Object.values(customers).find((c: any) => c.id === job.customerId)?.phone || ''}
+                </td>
                 <td>{`${job?.start ? moment(job.start).format('MM/DD/YYYY') : ''}`}</td>
                 <td> {job.amountDue}</td>
                 <td>
-                  <Button onClick={() => router.push(`${router.asPath}/${job.id}`)}>
-                    View
-                  </Button>
-                  
+                  <Button onClick={() => router.push(`${router.asPath}/${job.id}`)}>View</Button>
                 </td>
               </tr>
             ))}
